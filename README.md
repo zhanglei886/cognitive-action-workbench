@@ -96,8 +96,6 @@ Netlify Blobs is used for cloud sync. Each derived login key stores one JSON doc
 
 ## Security Notes
 
-- Do not commit API keys.
-- Do not commit `.env` files.
 - Qwen API keys entered by users are saved only in the user's browser.
 - The password phrase is used to derive a sync key but is not a substitute for a real account system.
 - Anyone who knows the same name and password phrase can access the same synced data.

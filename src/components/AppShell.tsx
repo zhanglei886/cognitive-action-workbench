@@ -1,13 +1,14 @@
-import { BarChart3, Brain, CalendarDays, CheckSquare, Database, Download, LogOut, Moon, RotateCcw, Sun, Timer } from "lucide-react";
+import { BarChart3, Brain, CalendarDays, Columns3, CheckSquare, Database, Download, LogOut, Moon, RotateCcw, Sun, Timer } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SyncStatus } from "../hooks/usePersistentApp";
 import { Button, cx } from "./ui";
 
-export type ViewKey = "dashboard" | "tasks" | "timer" | "thoughts" | "calendar" | "review" | "data";
+export type ViewKey = "dashboard" | "tasks" | "board" | "timer" | "thoughts" | "calendar" | "review" | "data";
 
 const nav = [
   { key: "dashboard", label: "首页", icon: BarChart3 },
   { key: "tasks", label: "任务", icon: CheckSquare },
+  { key: "board", label: "看板", icon: Columns3 },
   { key: "timer", label: "计时", icon: Timer },
   { key: "thoughts", label: "思考池", icon: Brain },
   { key: "calendar", label: "日历", icon: CalendarDays },
@@ -90,7 +91,7 @@ export function AppShell({
           <span>没有行动，不继续分析。</span>
         </div>
       </footer>
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-7 border-t border-white/80 bg-white/92 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-18px_45px_rgba(24,26,23,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-ink-900/92 lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-white/80 bg-white/92 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-18px_45px_rgba(24,26,23,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-ink-900/92 sm:grid-cols-8 lg:hidden">
         {nav.map(({ key, label, icon: Icon }) => (
           <button
             key={key}

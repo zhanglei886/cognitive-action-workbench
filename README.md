@@ -8,19 +8,23 @@ The core idea is simple: when a thought interrupts study or work, capture it int
 
 - Dashboard with daily energy, mood, focus, fatigue, and simple suggestions
 - Task system with next actions, task types, completion, and "Today Three"
+- Task tags, deadlines, pinning, and 5-items-per-page pagination
+- Kanban board for urgent-important, important-not-urgent, and not-important-not-urgent tasks
 - Focus timer with 15 / 25 / 50 / 5 minute modes
 - Quick "drop into thought pool" capture while timing
+- Timer keeps correct elapsed time after switching away from the page
 - End-of-session reflection
 - Thought Pool with 24-hour cooling, ready / processed / discarded states
+- Thought Pool pagination with 5 thoughts per page
 - Convert thoughts into tasks
 - Delete thoughts when they should be removed entirely
 - Daily lightweight review
-- Calendar view for completed tasks and captured thoughts by day
+- Calendar view with consistent date cells, activity markers, and day detail view
 - Export / import JSON
 - PWA support for mobile installation
 - Dark mode
 - Netlify static hosting + Netlify Functions + Netlify Blobs sync
-- Qwen / DashScope-compatible AI summary for Thought Pool
+- Qwen / DashScope-compatible AI summary for Thought Pool with Markdown rendering and summary pagination
 
 ## Tech Stack
 
@@ -96,6 +100,8 @@ Netlify Blobs is used for cloud sync. Each derived login key stores one JSON doc
 
 ## Security Notes
 
+- Do not commit API keys.
+- Do not commit `.env` files.
 - Qwen API keys entered by users are saved only in the user's browser.
 - The password phrase is used to derive a sync key but is not a substitute for a real account system.
 - Anyone who knows the same name and password phrase can access the same synced data.

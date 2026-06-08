@@ -5,12 +5,13 @@ import { CalendarView } from "./components/CalendarView";
 import { DailyReview } from "./components/DailyReview";
 import { DataManager } from "./components/DataManager";
 import { FocusTimer } from "./components/FocusTimer";
+import { KanbanBoard } from "./components/KanbanBoard";
 import { Login } from "./components/Login";
 import { Tasks } from "./components/Tasks";
 import { ThoughtPool } from "./components/ThoughtPool";
 import { usePersistentApp } from "./hooks/usePersistentApp";
 import { UserSession } from "./lib/auth";
-import { clearUserSession, loadUserSession, saveUserSession } from "./lib/storage";
+import { clearUserSession, loadUserSession, migrateLegacyUserData, saveUserSession } from "./lib/storage";
 
 export default function App() {
   const [session, setSession] = useState<UserSession | null>(() => loadUserSession());
@@ -19,6 +20,7 @@ export default function App() {
     return (
       <Login
         onLogin={(nextSession) => {
+          migrateLegacyUserData(nextSession);
           saveUserSession(nextSession);
           setSession(nextSession);
         }}
@@ -54,6 +56,7 @@ function Workspace({ session, onLogout }: { session: UserSession; onLogout: () =
     >
       {view === "dashboard" && <Dashboard data={data} dailyState={dailyState} setDailyState={setDailyState} timer={timer} />}
       {view === "tasks" && <Tasks data={data} setData={setData} />}
+      {view === "board" && <KanbanBoard data={data} setData={setData} />}
       {view === "timer" && <FocusTimer data={data} setData={setData} timer={timer} setTimer={setTimer} />}
       {view === "thoughts" && <ThoughtPool data={data} setData={setData} />}
       {view === "calendar" && <CalendarView data={data} />}

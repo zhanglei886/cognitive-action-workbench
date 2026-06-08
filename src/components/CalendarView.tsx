@@ -51,8 +51,9 @@ export function CalendarView({ data }: { data: AppData }) {
           ))}
           {days.map((day) => {
             const key = toDateKey(day.date);
-            const taskCount = data.tasks.filter((task) => task.completedAt && isSameDay(task.completedAt, key)).length;
-            const thoughtCount = data.thoughts.filter((thought) => isSameDay(thought.createdAt, key)).length;
+            const hasActivity =
+              data.tasks.some((task) => task.completedAt && isSameDay(task.completedAt, key)) ||
+              data.thoughts.some((thought) => isSameDay(thought.createdAt, key));
             const isSelected = key === selectedDate;
             const isToday = key === today;
 
@@ -65,17 +66,19 @@ export function CalendarView({ data }: { data: AppData }) {
                   day.inMonth
                     ? "border-white/80 bg-white/70 shadow-[0_8px_24px_rgba(24,26,23,0.035)] dark:border-white/10 dark:bg-white/[0.045] dark:shadow-none"
                     : "border-transparent bg-transparent opacity-35",
+                  hasActivity && day.inMonth && !isSelected && "border-moss-500/75 ring-1 ring-moss-300/60 dark:border-moss-300/60 dark:ring-moss-700/50",
                   isSelected && "border-ink-900 bg-ink-900 text-white dark:border-ink-50 dark:bg-ink-50 dark:text-ink-900",
                   !isSelected && "hover:border-moss-300 hover:bg-moss-100/50 dark:hover:border-moss-700 dark:hover:bg-moss-700/15",
                 )}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex h-full items-start justify-between">
                   <span className="text-sm font-semibold">{day.date.getDate()}</span>
-                  {isToday && <span className={cx("h-1.5 w-1.5 rounded-full", isSelected ? "bg-white dark:bg-ink-900" : "bg-moss-700 dark:bg-moss-300")} />}
-                </div>
-                <div className={cx("mt-2 grid gap-1 text-[11px]", isSelected ? "text-white/75 dark:text-ink-900/70" : "text-ink-700/50 dark:text-ink-100/45")}>
-                  {taskCount > 0 && <span>{taskCount} 任务</span>}
-                  {thoughtCount > 0 && <span>{thoughtCount} 想法</span>}
+                  <div className="flex gap-1">
+                    {hasActivity && (
+                      <span className={cx("h-1.5 w-1.5 rounded-full", isSelected ? "bg-white dark:bg-ink-900" : "bg-clay-400 dark:bg-clay-100")} />
+                    )}
+                    {isToday && <span className={cx("h-1.5 w-1.5 rounded-full", isSelected ? "bg-white/70 dark:bg-ink-900/70" : "bg-moss-700 dark:bg-moss-300")} />}
+                  </div>
                 </div>
               </button>
             );

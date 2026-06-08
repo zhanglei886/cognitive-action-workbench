@@ -2,11 +2,17 @@ export type TaskType = "study" | "research" | "engineering" | "social" | "life" 
 
 export type TodaySlot = "must" | "move" | "care";
 
+export type TaskPriority = "urgent-important" | "important-not-urgent" | "not-important-not-urgent";
+
 export interface Task {
   id: string;
   title: string;
   nextAction: string;
   type: TaskType;
+  priority: TaskPriority;
+  pinned: boolean;
+  tags: string[];
+  deadline?: string;
   estimatedMinutes: number;
   completed: boolean;
   createdAt: string;
@@ -75,6 +81,7 @@ export interface TimerState {
   remainingSeconds: number;
   running: boolean;
   startedAt?: string;
+  targetEndAt?: string;
 }
 
 export interface AppData {

@@ -1,5 +1,5 @@
-import { UserSession } from "./auth";
 import { AppData, DailyState, TimerState } from "../types";
+import { legacyUserKey, UserSession } from "./auth";
 import { todayKey } from "./date";
 
 const DATA_KEY = "cognitive-action-workbench:data";
@@ -44,7 +44,14 @@ export const normalizeData = (candidate: Partial<AppData> | null | undefined): A
     ...fallback,
     ...candidate,
     version: 1,
-    tasks: Array.isArray(candidate.tasks) ? candidate.tasks : [],
+    tasks: Array.isArray(candidate.tasks)
+      ? candidate.tasks.map((task) => ({
+          ...task,
+          priority: task.priority ?? "important-not-urgent",
+          pinned: Boolean(task.pinned),
+          tags: Array.isArray(task.tags) ? task.tags : [],
+        }))
+      : [],
     thoughts: Array.isArray(candidate.thoughts) ? candidate.thoughts : [],
     dailyStates: candidate.dailyStates && typeof candidate.dailyStates === "object" ? candidate.dailyStates : fallback.dailyStates,
     todayThree: candidate.todayThree && typeof candidate.todayThree === "object" ? candidate.todayThree : {},
@@ -58,6 +65,7 @@ export const defaultTimerState = (): TimerState => ({
   modeMinutes: 25,
   remainingSeconds: 25 * 60,
   running: false,
+  targetEndAt: undefined,
 });
 
 export const loadData = (userName?: string): AppData => {
@@ -89,6 +97,25 @@ export const saveTimer = (timer: TimerState, userName?: string) => {
   localStorage.setItem(scoped(TIMER_KEY, userName), JSON.stringify(timer));
 };
 
+export const migrateLegacyUserData = (session: UserSession) => {
+  const legacyKey = legacyUserKey(session.displayName);
+  if (!legacyKey || legacyKey === session.syncKey) return;
+
+  const legacyDataKey = scoped(DATA_KEY, legacyKey);
+  const nextDataKey = scoped(DATA_KEY, session.syncKey);
+  if (!localStorage.getItem(nextDataKey)) {
+    const legacyData = localStorage.getItem(legacyDataKey);
+    if (legacyData) localStorage.setItem(nextDataKey, legacyData);
+  }
+
+  const legacyTimerKey = scoped(TIMER_KEY, legacyKey);
+  const nextTimerKey = scoped(TIMER_KEY, session.syncKey);
+  if (!localStorage.getItem(nextTimerKey)) {
+    const legacyTimer = localStorage.getItem(legacyTimerKey);
+    if (legacyTimer) localStorage.setItem(nextTimerKey, legacyTimer);
+  }
+};
+
 export const loadTheme = () => localStorage.getItem(THEME_KEY) ?? "light";
 
 export const saveTheme = (theme: "light" | "dark") => {
@@ -98,16 +125,13 @@ export const saveTheme = (theme: "light" | "dark") => {
 export const loadUserSession = (): UserSession | null => {
   try {
     const raw = localStorage.getItem(SESSION_KEY);
-    if (raw) {
-      const session = JSON.parse(raw) as UserSession;
-      if (session.displayName && session.syncKey) return session;
-    }
+    if (!raw) return null;
+    const session = JSON.parse(raw) as UserSession;
+    if (session.displayName && session.syncKey) return session;
   } catch {
     localStorage.removeItem(SESSION_KEY);
   }
-
-  const legacyName = localStorage.getItem(USER_KEY);
-  return legacyName ? { displayName: legacyName, syncKey: legacyName.trim().toLowerCase() } : null;
+  return null;
 };
 
 export const saveUserSession = (session: UserSession) => {

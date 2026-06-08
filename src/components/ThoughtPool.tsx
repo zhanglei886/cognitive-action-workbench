@@ -1,13 +1,15 @@
-import { CheckCircle, CircleSlash, Plus, RefreshCw, Sparkles, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { CheckCircle, ChevronLeft, ChevronRight, CircleSlash, Plus, RefreshCw, Sparkles, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { AppData, Thought, ThoughtTag, ThoughtStatus } from "../types";
 import { addHours, formatShortDateTime } from "../lib/date";
 import { createId } from "../lib/id";
 import { Button, EmptyState, Field, Panel, Select, Textarea } from "./ui";
 import { summarizeThoughts } from "../lib/ai";
+import { MarkdownText } from "./MarkdownText";
 
 const tags: ThoughtTag[] = ["emotion", "relationship", "career", "research", "product", "philosophy", "writing", "idea", "question"];
 const statuses: ThoughtStatus[] = ["cooling", "ready", "processed", "discarded"];
+const pageSize = 5;
 
 export function ThoughtPool({ data, setData }: { data: AppData; setData: React.Dispatch<React.SetStateAction<AppData>> }) {
   const [content, setContent] = useState("");
@@ -16,6 +18,8 @@ export function ThoughtPool({ data, setData }: { data: AppData; setData: React.D
   const [summaryScope, setSummaryScope] = useState<"unprocessed" | "ready" | "cooling" | "all">("unprocessed");
   const [summarizing, setSummarizing] = useState(false);
   const [summaryError, setSummaryError] = useState("");
+  const [summaryPage, setSummaryPage] = useState(0);
+  const [thoughtPage, setThoughtPage] = useState(0);
 
   const addThought = () => {
     if (!content.trim()) return;
@@ -60,6 +64,9 @@ export function ThoughtPool({ data, setData }: { data: AppData; setData: React.D
           title: thought.content.slice(0, 42),
           nextAction: "从这个想法里定义一个可执行的下一步。",
           type: thought.tag === "research" ? "research" : thought.tag === "emotion" ? "recovery" : "life",
+          priority: "important-not-urgent",
+          pinned: false,
+          tags: [thought.tag],
           estimatedMinutes: 25,
           completed: false,
           createdAt: new Date().toISOString(),
@@ -70,11 +77,33 @@ export function ThoughtPool({ data, setData }: { data: AppData; setData: React.D
   };
 
   const visible = data.thoughts.filter((thought) => filter === "all" || thought.status === filter);
+  const thoughtPageCount = Math.max(1, Math.ceil(visible.length / pageSize));
+  const pageThoughts = visible.slice(thoughtPage * pageSize, (thoughtPage + 1) * pageSize);
+  const summaries = data.thoughtSummaries ?? [];
+  const currentSummary = summaries[summaryPage];
   const summaryTargets = data.thoughts.filter((thought) => {
     if (summaryScope === "all") return true;
     if (summaryScope === "unprocessed") return thought.status === "cooling" || thought.status === "ready";
     return thought.status === summaryScope;
   });
+
+  useEffect(() => {
+    setSummaryPage(0);
+  }, [summaries.length]);
+
+  useEffect(() => {
+    if (summaryPage > Math.max(summaries.length - 1, 0)) {
+      setSummaryPage(Math.max(summaries.length - 1, 0));
+    }
+  }, [summaryPage, summaries.length]);
+
+  useEffect(() => {
+    setThoughtPage(0);
+  }, [filter]);
+
+  useEffect(() => {
+    setThoughtPage((page) => Math.min(page, thoughtPageCount - 1));
+  }, [thoughtPageCount]);
 
   const runSummary = async () => {
     setSummaryError("");
@@ -137,15 +166,30 @@ export function ThoughtPool({ data, setData }: { data: AppData; setData: React.D
             {summaryError && <div className="rounded-md bg-clay-100 p-3 text-sm text-clay-600 dark:bg-clay-600/15 dark:text-clay-100">{summaryError}</div>}
           </div>
           <div className="mt-5 grid gap-3">
-            {(data.thoughtSummaries ?? []).slice(0, 3).map((summary) => (
-              <article key={summary.id} className="rounded-md border border-ink-200 p-3 dark:border-white/10">
+            {currentSummary && (
+              <article key={currentSummary.id} className="rounded-md border border-ink-200 p-3 dark:border-white/10">
                 <div className="mb-2 text-xs text-ink-700/55 dark:text-ink-100/45">
-                  {summary.thoughtCount} 条 · {summary.scope} · {formatShortDateTime(summary.createdAt)}
+                  {currentSummary.thoughtCount} 条 · {currentSummary.scope} · {formatShortDateTime(currentSummary.createdAt)}
                 </div>
-                <div className="whitespace-pre-wrap text-sm leading-6 text-ink-700 dark:text-ink-100/75">{summary.content}</div>
+                <MarkdownText content={currentSummary.content} />
               </article>
-            ))}
-            {(data.thoughtSummaries ?? []).length === 0 && <p className="text-sm text-ink-700/55 dark:text-ink-100/45">还没有 AI 总结。</p>}
+            )}
+            {summaries.length > 1 && (
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-ink-200/80 bg-white/60 p-2 dark:border-white/10 dark:bg-white/[0.035]">
+                <Button variant="secondary" onClick={() => setSummaryPage((page) => Math.max(page - 1, 0))} disabled={summaryPage === 0}>
+                  <ChevronLeft size={16} className="mr-1" />
+                  上一条
+                </Button>
+                <span className="text-sm text-ink-700/60 dark:text-ink-100/55">
+                  {summaryPage + 1} / {summaries.length}
+                </span>
+                <Button variant="secondary" onClick={() => setSummaryPage((page) => Math.min(page + 1, summaries.length - 1))} disabled={summaryPage >= summaries.length - 1}>
+                  下一条
+                  <ChevronRight size={16} className="ml-1" />
+                </Button>
+              </div>
+            )}
+            {summaries.length === 0 && <p className="text-sm text-ink-700/55 dark:text-ink-100/45">还没有 AI 总结。</p>}
           </div>
         </Panel>
       </div>
@@ -160,7 +204,7 @@ export function ThoughtPool({ data, setData }: { data: AppData; setData: React.D
         </div>
         <div className="mt-4 grid gap-3">
           {visible.length === 0 && <EmptyState text="这里暂时很安静。" />}
-          {visible.map((thought) => (
+          {pageThoughts.map((thought) => (
             <article key={thought.id} className="rounded-lg border border-ink-200 p-4 dark:border-white/10">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
@@ -183,6 +227,21 @@ export function ThoughtPool({ data, setData }: { data: AppData; setData: React.D
               </div>
             </article>
           ))}
+          {visible.length > pageSize && (
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-ink-200/80 bg-white/60 p-2 dark:border-white/10 dark:bg-white/[0.035]">
+              <Button variant="secondary" onClick={() => setThoughtPage((page) => Math.max(page - 1, 0))} disabled={thoughtPage === 0}>
+                <ChevronLeft size={16} className="mr-1" />
+                上一页
+              </Button>
+              <span className="text-sm text-ink-700/60 dark:text-ink-100/55">
+                {thoughtPage + 1} / {thoughtPageCount}
+              </span>
+              <Button variant="secondary" onClick={() => setThoughtPage((page) => Math.min(page + 1, thoughtPageCount - 1))} disabled={thoughtPage >= thoughtPageCount - 1}>
+                下一页
+                <ChevronRight size={16} className="ml-1" />
+              </Button>
+            </div>
+          )}
         </div>
       </Panel>
     </div>

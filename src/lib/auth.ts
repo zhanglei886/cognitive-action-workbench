@@ -15,6 +15,10 @@ export async function createUserSession(name: string, password: string): Promise
   };
 }
 
+export function legacyUserKey(name: string) {
+  return name.trim().toLowerCase();
+}
+
 function normalizeName(value: string) {
   return (
     value

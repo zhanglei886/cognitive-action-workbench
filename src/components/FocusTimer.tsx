@@ -1,5 +1,5 @@
 import { Pause, Play, Square, TimerReset } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AppData, ThoughtTag, TimerState } from "../types";
 import { addHours, formatTime } from "../lib/date";
 import { createId } from "../lib/id";
@@ -30,21 +30,61 @@ export function FocusTimer({
   const [showThoughtBox, setShowThoughtBox] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
   const [reflection, setReflection] = useState({ completedWhat: "", interruptedBy: "", nextStep: "" });
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  const reflectedTimerRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!timer.running) return;
+    if (!timer.running || !timer.targetEndAt) return;
     const interval = window.setInterval(() => {
+      setNowMs(Date.now());
       setTimer((current) => {
-        if (!current.running) return current;
-        if (current.remainingSeconds <= 1) {
-          setShowReflection(true);
-          return { ...current, remainingSeconds: 0, running: false };
+        if (!current.running || !current.targetEndAt) return current;
+        const remaining = getRemainingSeconds(current);
+        if (remaining <= 0) {
+          const reflectionKey = current.startedAt ?? current.targetEndAt;
+          if (reflectedTimerRef.current !== reflectionKey) {
+            reflectedTimerRef.current = reflectionKey;
+            setShowReflection(true);
+          }
+          return { ...current, remainingSeconds: 0, running: false, targetEndAt: undefined };
         }
-        return { ...current, remainingSeconds: current.remainingSeconds - 1 };
+        if (remaining !== current.remainingSeconds) {
+          return { ...current, remainingSeconds: remaining };
+        }
+        return current;
       });
     }, 1000);
-    return () => window.clearInterval(interval);
-  }, [setTimer, timer.running]);
+
+    const syncNow = () => setNowMs(Date.now());
+    document.addEventListener("visibilitychange", syncNow);
+    window.addEventListener("focus", syncNow);
+
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", syncNow);
+      window.removeEventListener("focus", syncNow);
+    };
+  }, [setTimer, timer.running, timer.targetEndAt]);
+
+  useEffect(() => {
+    if (!timer.running || !timer.targetEndAt) return;
+    const remaining = getRemainingSeconds(timer, nowMs);
+    if (remaining <= 0) {
+      setTimer((current) => {
+        if (!current.running) return current;
+        const currentRemaining = getRemainingSeconds(current);
+        if (currentRemaining > 0) return current;
+        const reflectionKey = current.startedAt ?? current.targetEndAt ?? "timer";
+        if (reflectedTimerRef.current !== reflectionKey) {
+          reflectedTimerRef.current = reflectionKey;
+          setShowReflection(true);
+        }
+        return { ...current, remainingSeconds: 0, running: false, targetEndAt: undefined };
+      });
+    }
+  }, [nowMs, setTimer, timer]);
+
+  const displaySeconds = useMemo(() => getRemainingSeconds(timer, nowMs), [timer, nowMs]);
 
   const setMode = (minutes: number) => {
     setTimer((current) => ({
@@ -53,6 +93,7 @@ export function FocusTimer({
       remainingSeconds: minutes * 60,
       running: false,
       startedAt: undefined,
+      targetEndAt: undefined,
     }));
   };
 
@@ -62,15 +103,23 @@ export function FocusTimer({
       running: true,
       startedAt: current.startedAt ?? new Date().toISOString(),
       remainingSeconds: current.remainingSeconds || current.modeMinutes * 60,
+      targetEndAt: new Date(Date.now() + (current.remainingSeconds || current.modeMinutes * 60) * 1000).toISOString(),
     }));
+    setNowMs(Date.now());
   };
 
-  const pause = () => setTimer((current) => ({ ...current, running: false }));
+  const pause = () =>
+    setTimer((current) => ({
+      ...current,
+      running: false,
+      remainingSeconds: getRemainingSeconds(current),
+      targetEndAt: undefined,
+    }));
   const end = () => {
-    setTimer((current) => ({ ...current, running: false }));
+    setTimer((current) => ({ ...current, running: false, remainingSeconds: getRemainingSeconds(current), targetEndAt: undefined }));
     setShowReflection(true);
   };
-  const reset = () => setTimer((current) => ({ ...current, running: false, remainingSeconds: current.modeMinutes * 60, startedAt: undefined }));
+  const reset = () => setTimer((current) => ({ ...current, running: false, remainingSeconds: current.modeMinutes * 60, startedAt: undefined, targetEndAt: undefined }));
 
   const captureThought = () => {
     if (!quickThought.trim()) return;
@@ -96,8 +145,8 @@ export function FocusTimer({
 
   const saveReflection = () => {
     setData((current) => ({
-      ...current,
-      timerReflections: [
+        ...current,
+        timerReflections: [
         {
           id: createId(),
           taskId: timer.selectedTaskId,
@@ -110,6 +159,7 @@ export function FocusTimer({
     }));
     setReflection({ completedWhat: "", interruptedBy: "", nextStep: "" });
     setShowReflection(false);
+    reflectedTimerRef.current = null;
     reset();
   };
 
@@ -120,7 +170,7 @@ export function FocusTimer({
       <Panel className="lg:sticky lg:top-28 lg:self-start">
         <h2 className="text-lg font-semibold">Focus Timer</h2>
         <div className="mt-5 text-center">
-          <div className="text-7xl font-semibold tabular-nums sm:text-8xl">{formatTime(timer.remainingSeconds)}</div>
+          <div className="text-7xl font-semibold tabular-nums sm:text-8xl">{formatTime(displaySeconds)}</div>
           <p className="mt-3 text-sm text-ink-700/60 dark:text-ink-100/55">{timer.running ? "正在专注" : "等待开始"}</p>
         </div>
         <div className="mt-6 grid gap-4">
@@ -216,4 +266,11 @@ export function FocusTimer({
       )}
     </div>
   );
+}
+
+function getRemainingSeconds(timer: TimerState, now = Date.now()) {
+  if (timer.running && timer.targetEndAt) {
+    return Math.max(0, Math.ceil((new Date(timer.targetEndAt).getTime() - now) / 1000));
+  }
+  return Math.max(0, timer.remainingSeconds);
 }

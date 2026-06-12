@@ -1,7 +1,7 @@
 import { Pause, Play, Square, TimerReset } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppData, ThoughtTag, TimerState } from "../types";
-import { addHours, formatTime } from "../lib/date";
+import { addHours, formatTime, getTimerRemainingSeconds } from "../lib/date";
 import { createId } from "../lib/id";
 import { Button, Field, Input, Panel, Select, Textarea } from "./ui";
 
@@ -39,7 +39,7 @@ export function FocusTimer({
       setNowMs(Date.now());
       setTimer((current) => {
         if (!current.running || !current.targetEndAt) return current;
-        const remaining = getRemainingSeconds(current);
+        const remaining = getTimerRemainingSeconds(current);
         if (remaining <= 0) {
           const reflectionKey = current.startedAt ?? current.targetEndAt;
           if (reflectedTimerRef.current !== reflectionKey) {
@@ -68,11 +68,11 @@ export function FocusTimer({
 
   useEffect(() => {
     if (!timer.running || !timer.targetEndAt) return;
-    const remaining = getRemainingSeconds(timer, nowMs);
+    const remaining = getTimerRemainingSeconds(timer, nowMs);
     if (remaining <= 0) {
       setTimer((current) => {
         if (!current.running) return current;
-        const currentRemaining = getRemainingSeconds(current);
+        const currentRemaining = getTimerRemainingSeconds(current);
         if (currentRemaining > 0) return current;
         const reflectionKey = current.startedAt ?? current.targetEndAt ?? "timer";
         if (reflectedTimerRef.current !== reflectionKey) {
@@ -84,7 +84,7 @@ export function FocusTimer({
     }
   }, [nowMs, setTimer, timer]);
 
-  const displaySeconds = useMemo(() => getRemainingSeconds(timer, nowMs), [timer, nowMs]);
+  const displaySeconds = useMemo(() => getTimerRemainingSeconds(timer, nowMs), [timer, nowMs]);
 
   const setMode = (minutes: number) => {
     setTimer((current) => ({
@@ -112,11 +112,11 @@ export function FocusTimer({
     setTimer((current) => ({
       ...current,
       running: false,
-      remainingSeconds: getRemainingSeconds(current),
+      remainingSeconds: getTimerRemainingSeconds(current),
       targetEndAt: undefined,
     }));
   const end = () => {
-    setTimer((current) => ({ ...current, running: false, remainingSeconds: getRemainingSeconds(current), targetEndAt: undefined }));
+    setTimer((current) => ({ ...current, running: false, remainingSeconds: getTimerRemainingSeconds(current), targetEndAt: undefined }));
     setShowReflection(true);
   };
   const reset = () => setTimer((current) => ({ ...current, running: false, remainingSeconds: current.modeMinutes * 60, startedAt: undefined, targetEndAt: undefined }));
@@ -243,34 +243,32 @@ export function FocusTimer({
       </div>
 
       {showReflection && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink-900/35 p-3 backdrop-blur-sm sm:items-center sm:p-4">
-          <div className="max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-2xl border border-ink-200 bg-white p-5 shadow-panel dark:border-white/10 dark:bg-ink-900">
-            <h3 className="text-lg font-semibold">结束前，留三句话</h3>
-            <div className="mt-4 grid gap-4">
-              <Field label="我完成了什么？">
-                <Textarea value={reflection.completedWhat} onChange={(event) => setReflection({ ...reflection, completedWhat: event.target.value })} />
-              </Field>
-              <Field label="我中途被什么打断？">
-                <Textarea value={reflection.interruptedBy} onChange={(event) => setReflection({ ...reflection, interruptedBy: event.target.value })} />
-              </Field>
-              <Field label="下一步是什么？">
-                <Input value={reflection.nextStep} onChange={(event) => setReflection({ ...reflection, nextStep: event.target.value })} />
-              </Field>
-              <div className="flex gap-2">
-                <Button onClick={saveReflection}>保存复盘</Button>
-                <Button variant="secondary" onClick={() => setShowReflection(false)}>稍后再写</Button>
+        <div className="fixed inset-0 z-[70] flex h-[100dvh] items-end justify-center overflow-hidden bg-ink-900/35 px-3 pb-[calc(9.5rem+env(safe-area-inset-bottom))] pt-4 backdrop-blur-sm sm:items-center sm:p-4">
+          <div className="flex max-h-[calc(100dvh-10.75rem-env(safe-area-inset-bottom))] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-panel dark:border-white/10 dark:bg-ink-900 sm:max-h-[92dvh]">
+            <div className="shrink-0 border-b border-ink-200/80 p-5 dark:border-white/10">
+              <h3 className="text-lg font-semibold">结束前，留三句话</h3>
+              <p className="mt-1 text-sm text-ink-700/55 dark:text-ink-100/45">简短记录即可，按钮会固定在底部。</p>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+              <div className="grid gap-4">
+                <Field label="我完成了什么？">
+                  <Textarea value={reflection.completedWhat} onChange={(event) => setReflection({ ...reflection, completedWhat: event.target.value })} className="min-h-20" />
+                </Field>
+                <Field label="我中途被什么打断？">
+                  <Textarea value={reflection.interruptedBy} onChange={(event) => setReflection({ ...reflection, interruptedBy: event.target.value })} className="min-h-20" />
+                </Field>
+                <Field label="下一步是什么？">
+                  <Input value={reflection.nextStep} onChange={(event) => setReflection({ ...reflection, nextStep: event.target.value })} />
+                </Field>
               </div>
+            </div>
+            <div className="grid shrink-0 grid-cols-2 gap-2 border-t border-ink-200/80 bg-white/96 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] dark:border-white/10 dark:bg-ink-900/96">
+              <Button onClick={saveReflection} className="h-12">保存复盘</Button>
+              <Button variant="secondary" onClick={() => setShowReflection(false)} className="h-12">稍后再写</Button>
             </div>
           </div>
         </div>
       )}
     </div>
   );
-}
-
-function getRemainingSeconds(timer: TimerState, now = Date.now()) {
-  if (timer.running && timer.targetEndAt) {
-    return Math.max(0, Math.ceil((new Date(timer.targetEndAt).getTime() - now) / 1000));
-  }
-  return Math.max(0, timer.remainingSeconds);
 }

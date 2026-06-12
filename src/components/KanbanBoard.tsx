@@ -17,7 +17,7 @@ const lanes: Array<{
   {
     key: "important-not-urgent",
     title: "不紧急但重要",
-    tone: "border-moss-300/70 bg-moss-100/70 dark:bg-moss-700/18",
+    tone: "border-moss-300/70 bg-moss-100/70 dark:border-moss-700/35 dark:bg-[#172015]/75",
     hint: "长期推进，稳定复利。",
   },
   {
@@ -49,7 +49,7 @@ export function KanbanBoard({ data, setData }: { data: AppData; setData: React.D
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h2 className="text-lg font-semibold">任务看板</h2>
-            <p className="mt-1 text-sm text-ink-700/60 dark:text-ink-100/55">把任务按重要性和紧急度分流，先看哪里堆积。</p>
+            <p className="mt-1 text-sm text-ink-700/60 dark:text-ink-100/55">这里只放当前可以推进的具体 work，长期规划移到复盘页。</p>
           </div>
           <div className="flex items-center gap-2 rounded-xl border border-ink-200/80 bg-white/70 px-3 py-2 text-sm text-ink-700/70 dark:border-white/10 dark:bg-white/[0.04] dark:text-ink-100/60">
             <BarChart3 size={16} />
@@ -129,10 +129,7 @@ export function KanbanBoard({ data, setData }: { data: AppData; setData: React.D
 
                     <div className="mt-4 flex items-center gap-2">
                       <MoveRight size={15} className="text-ink-700/45 dark:text-ink-100/40" />
-                      <Select
-                        value={task.priority}
-                        onChange={(event) => updateTask(task.id, { priority: event.target.value as TaskPriority })}
-                      >
+                      <Select value={task.priority} onChange={(event) => updateTask(task.id, { priority: event.target.value as TaskPriority })}>
                         {lanes.map((option) => (
                           <option key={option.key} value={option.key}>{option.title}</option>
                         ))}

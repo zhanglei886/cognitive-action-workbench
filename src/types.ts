@@ -19,6 +19,33 @@ export interface Task {
   completedAt?: string;
 }
 
+export type CalendarEventType = "exam" | "deadline" | "meeting" | "milestone" | "personal";
+
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  date: string;
+  type: CalendarEventType;
+  note: string;
+  createdAt: string;
+}
+
+export type StrategicPlanArea = "advisor" | "course" | "research" | "career" | "life" | "other";
+export type StrategicPlanHorizon = "month" | "semester" | "year";
+export type StrategicPlanStatus = "exploring" | "deciding" | "active" | "paused" | "done";
+
+export interface StrategicPlan {
+  id: string;
+  title: string;
+  question?: string;
+  area?: StrategicPlanArea;
+  horizon?: StrategicPlanHorizon;
+  status: StrategicPlanStatus;
+  nextReviewAt?: string;
+  notes: string;
+  createdAt: string;
+}
+
 export type ThoughtTag =
   | "emotion"
   | "relationship"
@@ -75,6 +102,14 @@ export interface ThoughtSummary {
   createdAt: string;
 }
 
+export interface WeeklyReport {
+  id: string;
+  weekStart: string;
+  weekEnd: string;
+  content: string;
+  createdAt: string;
+}
+
 export interface TimerState {
   selectedTaskId?: string;
   modeMinutes: number;
@@ -87,10 +122,13 @@ export interface TimerState {
 export interface AppData {
   version: 1;
   tasks: Task[];
+  calendarEvents: CalendarEvent[];
+  strategicPlans: StrategicPlan[];
   thoughts: Thought[];
   dailyStates: Record<string, DailyState>;
   todayThree: Record<string, Partial<Record<TodaySlot, string>>>;
   dailyReviews: Record<string, DailyReview>;
   timerReflections: TimerReflection[];
   thoughtSummaries: ThoughtSummary[];
+  weeklyReports: WeeklyReport[];
 }

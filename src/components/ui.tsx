@@ -56,16 +56,16 @@ export function Field({ label, children }: { label: string; children: ReactNode 
 export const inputClass =
   "min-h-10 rounded-lg border border-ink-200/85 bg-white/88 px-3 py-2 text-sm text-ink-900 outline-none transition placeholder:text-ink-700/40 focus:border-moss-500 focus:bg-white focus:ring-2 focus:ring-moss-300/35 dark:border-white/10 dark:bg-white/[0.055] dark:text-ink-50 dark:placeholder:text-ink-100/35 dark:focus:bg-white/10";
 
-export function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea className={cx(inputClass, "min-h-24 resize-y")} {...props} />;
+export function Textarea({ className = "", ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return <textarea className={cx(inputClass, "min-h-24 resize-y", className)} {...props} />;
 }
 
-export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select className={inputClass} {...props} />;
+export function Select({ className = "", ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return <select className={cx(inputClass, className)} {...props} />;
 }
 
-export function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return <input className={inputClass} {...props} />;
+export function Input({ className = "", ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
+  return <input className={cx(inputClass, className)} {...props} />;
 }
 
 export function EmptyState({ text }: { text: string }) {

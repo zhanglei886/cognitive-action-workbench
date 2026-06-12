@@ -54,8 +54,18 @@ function Workspace({ session, onLogout }: { session: UserSession; onLogout: () =
       syncStatus={syncStatus}
       onLogout={onLogout}
     >
-      {view === "dashboard" && <Dashboard data={data} dailyState={dailyState} setDailyState={setDailyState} timer={timer} />}
-      {view === "tasks" && <Tasks data={data} setData={setData} />}
+      {view === "dashboard" && (
+        <Dashboard
+          data={data}
+          setData={setData}
+          dailyState={dailyState}
+          setDailyState={setDailyState}
+          timer={timer}
+          setTimer={setTimer}
+          setView={setView}
+        />
+      )}
+      {view === "tasks" && <Tasks data={data} setData={setData} setTimer={setTimer} setView={setView} />}
       {view === "board" && <KanbanBoard data={data} setData={setData} />}
       {view === "timer" && <FocusTimer data={data} setData={setData} timer={timer} setTimer={setTimer} />}
       {view === "thoughts" && <ThoughtPool data={data} setData={setData} />}

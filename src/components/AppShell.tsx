@@ -1,4 +1,4 @@
-import { BarChart3, Brain, CalendarDays, Columns3, CheckSquare, Database, Download, LogOut, Moon, RotateCcw, Sun, Timer } from "lucide-react";
+import { BarChart3, Brain, CalendarDays, Columns3, CheckSquare, Download, LogOut, Moon, RotateCcw, Settings, Sun, Timer } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SyncStatus } from "../hooks/usePersistentApp";
 import { Button, cx } from "./ui";
@@ -13,7 +13,6 @@ const nav = [
   { key: "thoughts", label: "思考池", icon: Brain },
   { key: "calendar", label: "日历", icon: CalendarDays },
   { key: "review", label: "复盘", icon: RotateCcw },
-  { key: "data", label: "数据", icon: Database },
 ] as const;
 
 export function AppShell({
@@ -74,6 +73,14 @@ export function AppShell({
                 安装
               </Button>
             )}
+            <Button
+              variant={view === "data" ? "primary" : "secondary"}
+              onClick={() => setView("data")}
+              title="数据与设置"
+              className="h-10 w-10 px-0"
+            >
+              <Settings size={17} />
+            </Button>
             <Button variant="secondary" onClick={toggleTheme} title="切换暗色模式" className="h-10 w-10 px-0">
               {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
             </Button>
@@ -91,7 +98,7 @@ export function AppShell({
           <span>没有行动，不继续分析。</span>
         </div>
       </footer>
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-white/80 bg-white/92 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-18px_45px_rgba(24,26,23,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-ink-900/92 sm:grid-cols-8 lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-white/80 bg-white/92 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-18px_45px_rgba(24,26,23,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-ink-900/92 sm:grid-cols-7 lg:hidden">
         {nav.map(({ key, label, icon: Icon }) => (
           <button
             key={key}

@@ -26,6 +26,8 @@ export const defaultDailyState = (date = todayKey()): DailyState => ({
 export const defaultData = (): AppData => ({
   version: 1,
   tasks: [],
+  calendarEvents: [],
+  strategicPlans: [],
   thoughts: [],
   dailyStates: {
     [todayKey()]: defaultDailyState(),
@@ -34,6 +36,7 @@ export const defaultData = (): AppData => ({
   dailyReviews: {},
   timerReflections: [],
   thoughtSummaries: [],
+  weeklyReports: [],
 });
 
 export const normalizeData = (candidate: Partial<AppData> | null | undefined): AppData => {
@@ -52,12 +55,15 @@ export const normalizeData = (candidate: Partial<AppData> | null | undefined): A
           tags: Array.isArray(task.tags) ? task.tags : [],
         }))
       : [],
+    calendarEvents: Array.isArray(candidate.calendarEvents) ? candidate.calendarEvents : [],
+    strategicPlans: Array.isArray(candidate.strategicPlans) ? candidate.strategicPlans : [],
     thoughts: Array.isArray(candidate.thoughts) ? candidate.thoughts : [],
     dailyStates: candidate.dailyStates && typeof candidate.dailyStates === "object" ? candidate.dailyStates : fallback.dailyStates,
     todayThree: candidate.todayThree && typeof candidate.todayThree === "object" ? candidate.todayThree : {},
     dailyReviews: candidate.dailyReviews && typeof candidate.dailyReviews === "object" ? candidate.dailyReviews : {},
     timerReflections: Array.isArray(candidate.timerReflections) ? candidate.timerReflections : [],
     thoughtSummaries: Array.isArray(candidate.thoughtSummaries) ? candidate.thoughtSummaries : [],
+    weeklyReports: Array.isArray(candidate.weeklyReports) ? candidate.weeklyReports : [],
   };
 };
 

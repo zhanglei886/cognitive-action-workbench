@@ -1,0 +1,38 @@
+{
+	"appId": "site.leizhangphy.workbench",
+	"appName": "认知工作台",
+	"webDir": "dist",
+	"server": {},
+	"ios": {
+		"scheme": "CognitiveWorkbench",
+		"contentInset": "always"
+	},
+	"android": {
+		"allowMixedContent": false,
+		"captureInput": true
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 1500,
+			"launchAutoHide": true,
+			"backgroundColor": "#f8f8f7",
+			"androidScaleType": "CENTER_CROP",
+			"showSpinner": false
+		},
+		"StatusBar": {
+			"style": "dark",
+			"backgroundColor": "#f8f8f7"
+		},
+		"LocalNotifications": {
+			"smallIcon": "ic_stat_workbench",
+			"iconColor": "#748965"
+		},
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		}
+	}
+}

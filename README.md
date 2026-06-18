@@ -121,7 +121,7 @@ npx netlify deploy --prod --dir=dist
 
 ## Changelog
 
-### v1.1 — 2026-06-19
+### v4.0— 2026-06-19
 
 This release transforms the project from a web-only tool into a full cross-platform personal productivity system.
 

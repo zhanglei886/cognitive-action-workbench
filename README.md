@@ -1,123 +1,172 @@
-# Cognitive Action Workbench
+# Cognitive Workbench · Personal Cognition & Action Workbench
 
-A quiet personal workbench for tasks, focus sessions, delayed thought processing, daily review, lightweight planning, and calendar reflection.
+> "Thoughts into the pool first, actions one step ahead."  
+> "No conflict, no forced depth. No action, no further analysis."
 
-The core idea is simple: when a thought interrupts study or work, capture it into the **Thought Pool** first, let it cool down, and return to the current action.
+A full-stack personal productivity tool for knowledge workers and students: task management with Eisenhower matrix, Pomodoro timer with reflection, thought pool with 24h cooling period, daily review, calendar, AI-powered personal insights and weekly reports. Web + Android/iOS (Capacitor).
+
+**Built by a physics undergraduate — for anyone who thinks deeply and wants to act deliberately.**
+
+---
 
 ## Features
 
-- Compact four-quadrant dashboard
-  - Current focus timer
-  - Today Three
-  - Daily state with a recent composite-state line chart
-  - Upcoming deadlines and events
-- Daily state tracking: energy, mood, focus, and fatigue
-- Start-day and close-day flows
-- Task system with next actions, task types, completion, tags, deadlines, pinning, and Today Three
-- Collapsible task next actions and Event notes to keep the task page short
-- Task pagination with 4 tasks per page
-- Kanban board for urgent-important, important-not-urgent, and not-important-not-urgent tasks
-- Long-term planning in the Review page, with compact paginated planning cards
-- Focus timer with 15 / 25 / 50 / 5 minute modes
-- Quick "drop into thought pool" capture while timing
-- Timer keeps correct elapsed time after switching away from the page
-- End-of-session reflection
-- Thought Pool with 24-hour cooling, ready / processed / discarded states
-- Thought Pool pagination, conversion to tasks, and permanent delete
-- AI Thought Pool summary with Markdown rendering and paginated summary history
-- Weekly AI report history in the Review page
-- Daily lightweight review
-- Calendar view with:
-  - Consistent date cells
-  - Activity, focus, DDL, and Event markers
-  - Combined DDL/Event day items
-  - Task progress time even when a task is not completed
-- Export / import JSON
-- PWA support for mobile installation
-- Dark mode
-- Lightweight name + password-phrase login
-- Netlify static hosting + Netlify Functions + Netlify Blobs sync
-- Qwen / DashScope-compatible AI support
+- **Dashboard** — Weekly stats, Pomodoro countdown with task association, today's 3 priorities, daily energy/mood/focus tracking
+- **Tasks** — Create/edit/delete with type, priority (Eisenhower), deadline, tags. List + Kanban views. Tap to open detail editor.
+- **Focus Timer** — 5/15/25/50 min modes. Associate a task. Capture quick thoughts during focus. Post-session reflection. Desktop browser notification when timer ends.
+- **Thought Pool** — Capture ideas instantly. 24-hour cooling period before processing. AI personal insight analysis with psychological depth. Convert thoughts to tasks.
+- **Calendar** — Monthly grid with DDL/event highlighting. Create events (exam, deadline, meeting, milestone, personal). Clickable daily stats.
+- **Daily Review** — End-of-day three questions: What did I achieve? What emotion was most present? What to adjust tomorrow?
+- **AI Insights** — DeepSeek-powered personal insights on your thought patterns (warm, perceptive, psychology-informed). Weekly narrative reports.
+- **Global Search** — Ctrl+K to search tasks, thoughts, and calendar events.
+- **Dark/Light mode** + 4 accent themes (Default B&W / Moss Green / Cool Blue / Warm Orange)
+- **Dual Layout** — Classic 7-page web layout + Mobile sidebar layout (switchable in Settings)
+- **Cloud Sync** — Supabase backend. All data syncs across devices with the same account.
+- **PWA** — Installable on desktop and mobile browsers.
 
 ## Tech Stack
 
-- Vite
-- React
-- TypeScript
-- Tailwind CSS
-- Netlify Functions
-- Netlify Blobs
-- PWA Service Worker
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18 + TypeScript + Vite |
+| Styling | Tailwind CSS + Lucide Icons |
+| Backend | Supabase (PostgreSQL + Auth + Edge Functions) |
+| AI | DeepSeek API (bring your own key) |
+| Mobile | Capacitor 8 (Android / iOS) |
+| Notifications | Web Notification API + Capacitor Local Notifications |
 
-## Lightweight Login
+## Project Structure
 
-This project uses a lightweight login model:
-
-- Users enter a name and a password phrase.
-- No registration is required.
-- The password phrase is not stored on the server.
-- The app derives a sync key from `name + password phrase`.
-- Same name + same password phrase opens the same cloud data space.
-- Same name + different password phrase opens a different cloud data space.
-
-This is meant for lightweight personal use. It is not a full authentication system. Do not store highly sensitive data.
-
-## AI Summary
-
-AI summary uses Qwen through DashScope's OpenAI-compatible endpoint:
-
-```text
-https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+```
+src/
+├── components/
+│   ├── AppShell.tsx          # Web classic layout shell
+│   ├── Dashboard.tsx         # Web dashboard
+│   ├── Tasks.tsx / KanbanBoard.tsx / FocusTimer.tsx
+│   ├── ThoughtPool.tsx / CalendarView.tsx / DailyReview.tsx
+│   ├── DataManager.tsx       # Web settings & data management
+│   ├── SearchModal.tsx       # Global search (Ctrl+K)
+│   ├── ui.tsx                # Shared UI primitives
+│   └── mobile/
+│       ├── MobileApp.tsx     # Mobile sidebar layout shell
+│       ├── Sidebar.tsx       # Narrow icon sidebar
+│       ├── SidebarLayout.tsx # Sidebar + content container
+│       ├── TopBar.tsx        # Mobile top bar
+│       ├── BottomSheet.tsx   # Reusable bottom sheet
+│       ├── MobileKanban.tsx  # Single-column swipe kanban
+│       └── panels/           # 9 panel components
+├── hooks/usePersistentApp.ts # Central state + Supabase sync
+├── lib/
+│   ├── ai.ts                 # AI calls (DeepSeek)
+│   ├── auth.ts               # Supabase Auth
+│   ├── cloud.ts              # Supabase data sync layer
+│   ├── storage.ts            # localStorage + session
+│   ├── supabase.ts           # Supabase client singleton
+│   ├── notifications.ts      # Capacitor native notifications
+│   └── date.ts / id.ts       # Utilities
+└── styles.css                # Global styles + theme variables
 ```
 
-Users can enter their own Qwen API key in the app's settings/data page. The key is stored only in the current browser's `localStorage` and is sent to the Netlify Function only when an AI feature is requested.
+## Getting Started
 
-You can also set fallback server-side keys in Netlify:
+### Prerequisites
+- Node.js 18+ and npm
+- A Supabase project (free tier works)
+- A DeepSeek API key (for AI features)
 
-```text
-DASHSCOPE_API_KEY=your_key
-QWEN_MODEL=qwen-turbo
-QWEN_TIMEOUT_MS=30000
-QWEN_MAX_ATTEMPTS=3
-```
-
-## Local Development
-
-Install dependencies:
-
+### Setup
 ```bash
+# 1. Clone
+git clone https://github.com/YOUR_USERNAME/cognitive-workbench.git
+cd cognitive-workbench
+
+# 2. Install dependencies
 npm install
-```
 
-Run locally:
+# 3. Create .env file (see .env.example)
+cp .env.example .env
+# Edit .env with your Supabase URL and anon key
 
-```bash
+# 4. Run SQL migrations
+# Open Supabase SQL Editor and run:
+#   supabase/migrations/001_initial_schema.sql (tables + RLS)
+#   supabase/migrations/002_reset_and_create.sql (if reset needed)
+#   supabase/migrations/003_ai_usage.sql (AI usage tracking)
+
+# 5. Deploy Edge Functions (optional, for AI with quotas)
+# supabase functions deploy summarize-thoughts
+# supabase functions deploy weekly-report
+
+# 6. Start dev server
 npm run dev
+
+# 7. Open http://localhost:5173
+# Register with email + password → enter your DeepSeek API key in Settings → start using!
 ```
 
-Build:
-
+### Mobile App (Android)
 ```bash
 npm run build
+npx cap sync android
+npx cap open android
+# Build APK in Android Studio
 ```
 
-## Deploy to Netlify
-
-Connect this repository to Netlify. The project includes `netlify.toml`, so Netlify should detect:
-
-```text
-Build command: npm run build
-Publish directory: dist
-Functions directory: netlify/functions
+### Deploy to Netlify
+```bash
+npm run build
+npx netlify deploy --prod --dir=dist
+# Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Netlify env vars
 ```
 
-Netlify Blobs is used for cloud sync. Each derived login key stores one JSON document.
+## Changelog
 
-## Security Notes
+### v1.1 — 2026-06-19
 
-- Qwen API keys entered by users are saved only in the user's browser.
-- The password phrase is used to derive a sync key but is not a substitute for a real account system.
-- Anyone who knows the same name and password phrase can access the same synced data.
+This release transforms the project from a web-only tool into a full cross-platform personal productivity system.
+
+**New Features:**
+- 📱 **Mobile sidebar layout** — 9-panel narrow sidebar navigation optimized for one-hand phone use
+- 🔍 **Global search** — `Ctrl+K` to search across tasks, thoughts, and calendar events
+- 📅 **Calendar event creation** — Add exams, deadlines, meetings, milestones via bottom sheet
+- 🔔 **Desktop browser notifications** — Timer end notifications in web browsers
+- 🎨 **4 accent themes** — Default B&W, Moss Green, Cool Blue, Warm Orange with live sidebar coloring
+- 🏗️ **Dual layout system** — Switch between classic 7-page and mobile sidebar layouts in Settings
+- 📊 **Dashboard redesign** — Weekly stats panel replacing standalone timer, compact today's-3-things, integrated countdown
+- 💭 **Thought pool UI polish** — Consolidated button row, delete with proper border styling
+- ⏱️ **Timer reflection records** — Now show associated task name and duration
+- 🗑️ **Cloud sync fix** — Deleted tasks now properly removed from Supabase (upsert + cleanup)
+- 🛡️ **Supabase connection timeout** — 3-second graceful fallback to offline mode
+
+**AI Improvements:**
+- 🤖 **Rewritten AI prompts** — Personal insight coach with psychological depth, narrative weekly reports with warmth
+- 📝 **Thought citation support** — AI responses now reference specific notes with proper formatting
+
+**Bug Fixes:**
+- React StrictMode causing infinite "loading" state on sync
+- Kanban white-on-white text in light mode
+- Task creation Enter-key stale state
+- BottomSheet light mode (was dark-only)
+- CalendarView CSS specificity for mobile section hiding
+- Today state slider touch interaction
+- Supabase RLS 409 conflict on upsert
+
+**Infrastructure:**
+- 🗄️ Supabase backend replacing Netlify Blobs
+- 🔐 Email+password auth replacing pseudo-auth
+- ⚡ DeepSeek API integration (user-provided key)
+
+### v1.0 — Initial Release
+- 7-page web layout: Dashboard, Tasks, Kanban, Timer, Thoughts, Calendar, Review, Data
+- Eisenhower priority matrix
+- Pomodoro timer with reflection
+- Thought pool with 24h cooling
+- Daily energy/mood/focus tracking with trend chart
+- Daily review with three questions
+- Dark/light theme
+- PWA support
+- localStorage persistence
+- Netlify deployment
 
 ## License
 

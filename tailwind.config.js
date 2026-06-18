@@ -13,10 +13,10 @@ export default {
           900: "#181a17",
         },
         moss: {
-          100: "#e8efe2",
-          300: "#b8c9aa",
-          500: "#748965",
-          700: "#4b5f40",
+          100: "rgb(var(--color-moss-100) / <alpha-value>)",
+          300: "rgb(var(--color-moss-300) / <alpha-value>)",
+          500: "rgb(var(--color-moss-500) / <alpha-value>)",
+          700: "rgb(var(--color-moss-700) / <alpha-value>)",
         },
         clay: {
           100: "#f0e7df",

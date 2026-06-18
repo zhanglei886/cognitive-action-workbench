@@ -1,0 +1,233 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   三档主题系统：default / moss / blue
+   移动端通过 data-accent 属性切换，Web 端用 .accent-xxx
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+  --accent: 55 65 81;         /* gray-700 */
+  --accent-light: 243 244 246; /* gray-100 */
+  --accent-500: 107 114 128;
+  --accent-700: 55 65 81;
+  /* 兼容旧版（默认黑白色） */
+  --color-moss-100: 243 244 246;
+  --color-moss-300: 209 213 219;
+  --color-moss-500: 107 114 128;
+  --color-moss-700: 55 65 81;
+  --page-accent-wash: rgba(243, 244, 246, 0.48);
+  --selection-accent: rgba(107, 114, 128, 0.26);
+  --range-thumb: #374151;
+  --range-thumb-shadow: rgba(55, 65, 81, 0.16);
+  --range-thumb-dark: #9ca3af;
+  --range-thumb-dark-shadow: rgba(156, 163, 175, 0.14);
+}
+
+/* 安静绿 */
+[data-accent="moss"], .accent-moss, html.accent-moss {
+  --accent: 75 95 64;
+  --accent-light: 232 239 226;
+  --accent-500: 116 137 101;
+  --accent-700: 75 95 64;
+  /* 恢复组件中使用的 moss 色 */
+  --color-moss-100: 232 239 226;
+  --color-moss-300: 184 201 170;
+  --color-moss-500: 116 137 101;
+  --color-moss-700: 75 95 64;
+  --page-accent-wash: rgba(232, 239, 226, 0.48);
+  --selection-accent: rgba(116, 137, 101, 0.26);
+  --range-thumb: #4b5f40;
+  --range-thumb-shadow: rgba(75, 95, 64, 0.16);
+  --range-thumb-dark: #b8c9aa;
+  --range-thumb-dark-shadow: rgba(184, 201, 170, 0.14);
+}
+
+/* 清爽蓝 */
+[data-accent="blue"], .accent-blue, html.accent-blue {
+  --accent: 30 83 139;         /* blue-700 */
+  --accent-light: 226 237 249; /* blue-100 */
+  --accent-500: 64 124 181;
+  --accent-700: 30 83 139;
+}
+
+/* 暖橙 */
+[data-accent="warm"], .accent-warm, html.accent-warm {
+  --accent: 194 65 12;
+  --accent-light: 255 237 213;
+  --accent-500: 234 88 12;
+  --accent-700: 194 65 12;
+  --color-moss-100: 255 237 213;
+  --color-moss-300: 253 186 116;
+  --color-moss-500: 234 88 12;
+  --color-moss-700: 194 65 12;
+  --page-accent-wash: rgba(255, 237, 213, 0.48);
+  --selection-accent: rgba(234, 88, 12, 0.26);
+  --range-thumb: #c2410c;
+  --range-thumb-shadow: rgba(194, 65, 12, 0.16);
+  --range-thumb-dark: #fdba74;
+  --range-thumb-dark-shadow: rgba(253, 186, 116, 0.14);
+}
+
+/* 兼容旧 class */
+.accent-blue {
+  --color-moss-100: 226 237 249;
+  --color-moss-300: 147 187 226;
+  --color-moss-500: 64 124 181;
+  --color-moss-700: 30 83 139;
+  --page-accent-wash: rgba(226, 237, 249, 0.5);
+  --selection-accent: rgba(64, 124, 181, 0.28);
+  --range-thumb: #1e538b;
+  --range-thumb-shadow: rgba(30, 83, 139, 0.16);
+  --range-thumb-dark: #93bbe2;
+  --range-thumb-dark-shadow: rgba(147, 187, 226, 0.14);
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    linear-gradient(180deg, var(--page-accent-wash) 0%, rgba(248, 248, 247, 0) 320px),
+    #f8f8f7;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font-size: 14px;
+}
+
+::selection {
+  background: var(--selection-accent);
+}
+
+.calm-grid {
+  background-image:
+    linear-gradient(rgba(24, 26, 23, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24, 26, 23, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom, black, transparent 620px);
+}
+
+.dark .calm-grid {
+  background-image:
+    linear-gradient(rgba(248, 248, 247, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(248, 248, 247, 0.045) 1px, transparent 1px);
+}
+
+.score-range {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.score-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.score-range::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  margin-top: 5px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid var(--range-thumb);
+  border-radius: 9999px;
+  background: var(--range-thumb);
+  box-shadow: 0 0 0 3px var(--range-thumb-shadow);
+}
+
+.score-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.score-range::-moz-range-progress {
+  background: transparent;
+}
+
+.score-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--range-thumb);
+  border-radius: 9999px;
+  background: var(--range-thumb);
+  box-shadow: 0 0 0 3px var(--range-thumb-shadow);
+}
+
+.dark .score-range::-webkit-slider-thumb {
+  border-color: var(--range-thumb-dark);
+  background: var(--range-thumb-dark);
+  box-shadow: 0 0 0 3px var(--range-thumb-dark-shadow);
+}
+
+.dark .score-range::-moz-range-thumb {
+  border-color: var(--range-thumb-dark);
+  background: var(--range-thumb-dark);
+  box-shadow: 0 0 0 3px var(--range-thumb-dark-shadow);
+}
+
+/* ============================================================
+   移动端通用样式
+   ============================================================ */
+
+/* 底部安全区域 */
+.safe-bottom {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+/* BottomSheet 弹出动画 */
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 移动端 range 滑块美化 */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-top: -10px;
+}
+
+/* 页面切换淡入 */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}

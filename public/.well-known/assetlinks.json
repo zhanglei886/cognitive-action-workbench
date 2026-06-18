@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "site.leizhangphy.workbench",
+      "sha256_cert_fingerprints": [
+        "1C:D9:31:6B:A5:BB:F0:25:80:D4:A2:27:3A:83:7F:DA:B0:A0:FF:47:EF:8E:2D:55:D0:19:6F:61:4F:5E:85:87"
+      ]
+    }
+  }
+]
